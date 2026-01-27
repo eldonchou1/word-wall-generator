@@ -97,7 +97,7 @@ MIT License - Free to use and modify for personal or commercial use.
 
 - **Images**: Wikimedia Commons contributors
 - **Translations**: MyMemory Translation API
-- **Created by**: Eldon Chung (2026)
+- **Created by**: Eldon Chou (2026)
 
 ## 🐛 Known Limitations
 
