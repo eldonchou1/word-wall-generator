@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Generate printable word wall cards with English, Spanish, and Chinese translations, plus educational images from Wikimedia Commons.">
+    <meta name="keywords" content="word wall, vocabulary cards, bilingual, education, printable, classroom">
+    <meta name="author" content="Eldon Chou">
+    <title>Word Wall Generator - Free Educational Vocabulary Cards</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+        
+        .description {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        
+        .features {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        
+        .features h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        .features ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .features li {
+            padding: 5px 0;
+            color: #555;
+        }
+        
+        .features li:before {
+            content: "✓ ";
+            color: #4CAF50;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        .control-panel {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .form-group input[type="text"],
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .form-group textarea {
+            min-height: 120px;
+            font-family: monospace;
+        }
+        
+        .form-group input[type="color"] {
+            width: 100px;
+            height: 40px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #45a049;
+        }
+        
+        .btn-secondary {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #0b7dda;
+        }
+        
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .status.info {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .status.success {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+        
+        .status.error {
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        .tips {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #e3f2fd;
+            border-radius: 5px;
+            color: #1976d2;
+        }
+        
+        .tips strong {
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        .tips ul {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+        
+        /* Print styles */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
+            
+            @page {
+                size: 11in 8.5in landscape;
+                margin: 0;
+            }
+            
+            .control-panel,
+            .preview-area,
+            header {
+                display: none !important;
+            }
+            
+            .print-area {
+                display: block !important;
+            }
+            
+            .page {
+                margin: 0;
+                box-shadow: none;
+                page-break-inside: avoid;
+            }
+            
+            .page:first-child {
+                margin-top: 0 !important;
+            }
+            
+            .refresh-btn,
+            .custom-img-btn,
+            .edit-translation-btn {
+                display: none !important;
+            }
+        }
+        
+        .print-area {
+            display: none;
+        }
+        
+        .page {
+            width: 11in;
+            height: 8.5in;
+            page-break-after: always;
+            page-break-before: auto;
+            display: flex;
+            flex-direction: column;
+            margin: 0 auto 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 0.25in;
+        }
+        
+        .page:first-child {
+            page-break-before: avoid;
+        }
+        
+        .card {
+            width: 100%;
+            height: calc(50% - 0.125in);
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            padding: 30px 50px;
+            position: relative;
+            background: white;
+            border: 15px solid;
+            margin-bottom: 0.25in;
+        }
+        
+        .card:last-child {
+            margin-bottom: 0;
+        }
+        
+        .card-title {
+            position: absolute;
+            top: -15px;
+            left: 30px;
+            padding: 5px 20px;
+            font-size: 30px;
+            font-weight: bold;
+            color: white;
+            text-shadow: none;
+            z-index: 10;
+        }
+        
+        .card-left {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding-right: 30px;
+            min-width: 0;
+            position: relative;
+        }
+        
+        .edit-translation-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,123,255,0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            cursor: pointer;
+            font-size: 18px;
+            display: none;
+            z-index: 10;
+        }
+        
+        .card-left:hover .edit-translation-btn {
+            display: block;
+        }
+        
+        .card-right {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            max-height: 300px;
+            overflow: hidden;
+        }
+        
+        .card-image {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+        
+        .custom-img-btn {
+            position: absolute;
+            top: 10px;
+            right: 60px;
+            background: rgba(0,123,255,0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 20px;
+            display: none;
+            z-index: 10;
+        }
+        
+        .refresh-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 20px;
+            display: none;
+            z-index: 10;
+        }
+        
+        .card-right:hover .refresh-btn,
+        .card-right:hover .custom-img-btn {
+            display: block;
+        }
+        
+        .card-word {
+            font-size: 56px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: left;
+            line-height: 1.2;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%;
+        }
+        
+        .card-translations {
+            font-size: 28px;
+            color: #666;
+            text-align: left;
+            line-height: 1.6;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+            max-width: 100%;
+        }
+        
+        .translation-line {
+            display: inline-block;
+        }
+        
+        .preview-area {
+            max-width: 1400px;
+            margin: 20px auto;
+        }
+        
+        .preview-area .page {
+            background: white;
+        }
+        
+        footer {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        footer a {
+            color: #2196F3;
+            text-decoration: none;
+        }
+        
+        footer a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 Word Wall Generator</h1>
+            <p class="subtitle">Create printable vocabulary cards with translations and images</p>
+            
+            <div class="description">
+                <p>Generate beautiful, educational word wall cards for your classroom or home learning. Each card includes:</p>
+                <div class="features">
+                    <ul>
+                        <li><strong>English word</strong> in large, readable text</li>
+                        <li><strong>Spanish and Chinese translations</strong> automatically generated</li>
+                        <li><strong>Educational images</strong> from Wikimedia Commons</li>
+                        <li><strong>Customizable topic labels</strong> and colors</li>
+                        <li><strong>Print-ready format</strong> - two cards per landscape page</li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+        
+        <div class="control-panel">
+            <h2 style="margin-bottom: 20px;">Create Your Cards</h2>
+            
+            <div class="tips">
+                <strong>💡 How to Use:</strong>
+                <ul>
+                    <li><strong>Images:</strong> Sourced from Wikimedia Commons using your topic + word for context</li>
+                    <li><strong>Edit translations:</strong> Hover over text and click ✏️ to manually edit</li>
+                    <li><strong>Custom images:</strong> Hover over images and click 🖼️ to paste your own URL</li>
+                    <li><strong>Refresh images:</strong> Click 🔄 to get a different image from Wikimedia</li>
+                    <li><strong>100% free:</strong> No API keys or registration required!</li>
+                </ul>
+            </div>
+            
+            <div class="form-group">
+                <label>Topic Title:</label>
+                <input type="text" id="topicTitle" placeholder="e.g., Geoscience, Chemistry, Biology" value="Geoscience">
+            </div>
+            
+            <div class="form-group">
+                <label>Border Color:</label>
+                <input type="color" id="bgColor" value="#4A90E2">
+            </div>
+            
+            <div class="form-group">
+                <label>Word List (one per line):</label>
+                <textarea id="wordList" placeholder="Crust
+Mantle
+Core
+Plate
+Lithosphere">Crust
+Mantle
+Core
+Plate
+Lithosphere
+Magma
+Volcano
+Earthquake
+Fault
+Erosion</textarea>
+            </div>
+            
+            <div class="button-group">
+                <button class="btn-primary" onclick="generateCards()">🎨 Generate Cards</button>
+                <button class="btn-secondary" onclick="window.print()">🖨️ Print/Save PDF</button>
+            </div>
+            
+            <div id="status" class="status"></div>
+        </div>
+        
+        <div class="preview-area" id="previewArea"></div>
+        
+        <footer>
+            <p>Made with ❤️ by Eldon Chou | 
+            <a href="https://github.com" target="_blank">View on GitHub</a> | 
+            Images from <a href="https://commons.wikimedia.org" target="_blank">Wikimedia Commons</a> | 
+            Translations from <a href="https://mymemory.translated.net" target="_blank">MyMemory API</a></p>
+            <p style="margin-top: 10px; font-size: 0.85em;">Free to use and modify under MIT License</p>
+        </footer>
+    </div>
+    
+    <div class="print-area" id="printArea"></div>
+    
+    <script>
+        let cardsData = [];
+        
+        // Pre-vetted translations for common scientific terms
+        const fallbackTranslations = {
+            // Geoscience
+            'Mid-ocean Ridge': { es: 'Dorsal oceánica', 'zh-CN': '洋中脊' },
+            'Crust': { es: 'Corteza terrestre', 'zh-CN': '地壳' },
+            'Mantle': { es: 'Manto terrestre', 'zh-CN': '地幔' },
+            'Core': { es: 'Núcleo terrestre', 'zh-CN': '地核' },
+            'Plate': { es: 'Placa tectónica', 'zh-CN': '板块' },
+            'Lithosphere': { es: 'Litosfera', 'zh-CN': '岩石圈' },
+            'Asthenosphere': { es: 'Astenosfera', 'zh-CN': '软流圈' },
+            'Magma': { es: 'Magma', 'zh-CN': '岩浆' },
+            'Lava': { es: 'Lava', 'zh-CN': '熔岩' },
+            'Volcano': { es: 'Volcán', 'zh-CN': '火山' },
+            'Earthquake': { es: 'Terremoto', 'zh-CN': '地震' },
+            'Fault': { es: 'Falla geológica', 'zh-CN': '断层' },
+            'Weathering': { es: 'Meteorización', 'zh-CN': '风化' },
+            'Erosion': { es: 'Erosión', 'zh-CN': '侵蚀' },
+            'Sediment': { es: 'Sedimento', 'zh-CN': '沉积物' },
+            'Sedimentation': { es: 'Sedimentación', 'zh-CN': '沉积作用' },
+            'Continental Drift': { es: 'Deriva Continental', 'zh-CN': '大陆漂移' },
+            'Continent': { es: 'Continente', 'zh-CN': '大洲' },
+            'Metamorphism': { es: 'Metamorfismo', 'zh-CN': '变质作用' },
+            // Chemistry
+            'Atom': { es: 'Átomo', 'zh-CN': '原子' },
+            'Atomic Scale': { es: 'Escala atómica', 'zh-CN': '原子尺度' },
+            'Boiling Point': { es: 'Punto de ebullición', 'zh-CN': '沸点' },
+            'Chemical Change': { es: 'Cambio químico', 'zh-CN': '化学变化' },
+            'Chemical Formula': { es: 'Fórmula química', 'zh-CN': '化学式' },
+            'Chemical Reaction': { es: 'Reacción química', 'zh-CN': '化学反应' }
+        };
+        
+        // Free translation API
+        async function translateText(text, targetLang, topic = '') {
+            // Check fallback dictionary first
+            if (fallbackTranslations[text] && fallbackTranslations[text][targetLang]) {
+                return fallbackTranslations[text][targetLang];
+            }
+            
+            try {
+                const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${targetLang}`);
+                const data = await response.json();
+                
+                if (data.responseData && data.responseData.translatedText) {
+                    let translation = data.responseData.translatedText;
+                    
+                    // Clean up translation artifacts
+                    translation = translation.replace(/[：:；;。.]+$/g, '').trim();
+                    translation = translation.replace(/^[{}\[\]]+|[{}\[\]]+$/g, '').trim();
+                    
+                    if (translation && translation !== text && !translation.includes('MYMEMORY WARNING')) {
+                        return translation;
+                    }
+                }
+                
+                return text;
+            } catch (error) {
+                console.error(`Translation error:`, error);
+                return text;
+            }
+        }
+        
+        // Wikimedia Commons image search
+        async function fetchImage(word, topic = '') {
+            try {
+                const searchQuery = topic ? `${topic} ${word}` : word;
+                
+                const url = `https://commons.wikimedia.org/w/api.php?` +
+                    `action=query&generator=search&gsrsearch=${encodeURIComponent(searchQuery)}` +
+                    `&gsrnamespace=6&gsrlimit=10&prop=imageinfo&iiprop=url&format=json&origin=*`;
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.query && data.query.pages) {
+                    const pages = Object.values(data.query.pages);
+                    const imagePages = pages.filter(p => 
+                        p.imageinfo && 
+                        p.imageinfo[0] && 
+                        p.imageinfo[0].url &&
+                        /\.(jpg|jpeg|png|svg)$/i.test(p.imageinfo[0].url)
+                    );
+                    
+                    if (imagePages.length > 0) {
+                        return imagePages[0].imageinfo[0].url;
+                    }
+                }
+                
+                const seed = word.toLowerCase().replace(/\s+/g, '-');
+                return `https://picsum.photos/seed/${seed}/400/300`;
+                
+            } catch (error) {
+                console.error('Image fetch error:', error);
+                const seed = word.toLowerCase().replace(/\s+/g, '-');
+                return `https://picsum.photos/seed/${seed}/400/300`;
+            }
+        }
+        
+        async function fetchImageWithVariety(word, topic = '') {
+            const searchQuery = topic ? `${topic} ${word}` : word;
+            const randomIndex = Math.floor(Math.random() * 10);
+            
+            try {
+                const url = `https://commons.wikimedia.org/w/api.php?` +
+                    `action=query&generator=search&gsrsearch=${encodeURIComponent(searchQuery)}` +
+                    `&gsrnamespace=6&gsrlimit=15&prop=imageinfo&iiprop=url&format=json&origin=*`;
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.query && data.query.pages) {
+                    const pages = Object.values(data.query.pages);
+                    const imagePages = pages.filter(p => 
+                        p.imageinfo && 
+                        p.imageinfo[0] && 
+                        p.imageinfo[0].url &&
+                        /\.(jpg|jpeg|png|svg)$/i.test(p.imageinfo[0].url)
+                    );
+                    
+                    if (imagePages.length > 0) {
+                        const index = randomIndex % imagePages.length;
+                        return imagePages[index].imageinfo[0].url;
+                    }
+                }
+            } catch (error) {
+                console.error('Wikimedia variety fetch error:', error);
+            }
+            
+            const seed = word.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now();
+            return `https://picsum.photos/seed/${seed}/400/300`;
+        }
+        
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        
+        function showStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+            status.style.display = 'block';
+        }
+        
+        async function generateCards() {
+            const topic = document.getElementById('topicTitle').value;
+            const bgColor = document.getElementById('bgColor').value;
+            const wordList = document.getElementById('wordList').value
+                .split('\n')
+                .map(w => w.trim())
+                .filter(w => w);
+            
+            if (!topic || wordList.length === 0) {
+                showStatus('Please enter a topic and at least one word!', 'error');
+                return;
+            }
+            
+            showStatus(`Generating ${wordList.length} cards... This may take a minute.`, 'info');
+            
+            cardsData = [];
+            
+            for (let i = 0; i < wordList.length; i++) {
+                const word = wordList[i];
+                showStatus(`Processing ${i + 1}/${wordList.length}: ${word}`, 'info');
+                
+                const spanish = await translateText(word, 'es', topic);
+                await delay(300);
+                const chinese = await translateText(word, 'zh-CN', topic);
+                await delay(300);
+                
+                const imageUrl = await fetchImage(word, topic);
+                
+                cardsData.push({
+                    word,
+                    spanish,
+                    chinese,
+                    imageUrl,
+                    topic,
+                    bgColor
+                });
+            }
+            
+            renderCards();
+            showStatus(`✅ Generated ${cardsData.length} cards successfully!`, 'success');
+        }
+        
+        function renderCards() {
+            const previewArea = document.getElementById('previewArea');
+            const printArea = document.getElementById('printArea');
+            
+            let html = '';
+            
+            for (let i = 0; i < cardsData.length; i += 2) {
+                html += '<div class="page">';
+                html += renderCard(cardsData[i], i);
+                
+                if (i + 1 < cardsData.length) {
+                    html += renderCard(cardsData[i + 1], i + 1);
+                } else {
+                    html += '<div class="card" style="background: white; border: 15px solid #ddd; opacity: 0.3;"></div>';
+                }
+                
+                html += '</div>';
+            }
+            
+            previewArea.innerHTML = html;
+            printArea.innerHTML = html;
+        }
+        
+        function renderCard(card, index) {
+            const imageHtml = card.imageUrl 
+                ? `<img src="${card.imageUrl}" class="card-image" alt="${card.word}" crossorigin="anonymous">`
+                : '';
+            
+            const translations = `<span class="translation-line">${card.spanish}</span><br><span class="translation-line">${card.chinese}</span>`;
+            
+            return `
+                <div class="card" style="border-color: ${card.bgColor};" data-card-index="${index}">
+                    <div class="card-title" style="background-color: ${card.bgColor}; border-radius: 3px;">${card.topic}</div>
+                    <div class="card-left">
+                        <button class="edit-translation-btn" onclick="editTranslation(${index})" title="Edit translations">✏️</button>
+                        <div class="card-word">${card.word}</div>
+                        <div class="card-translations">${translations}</div>
+                    </div>
+                    <div class="card-right">
+                        ${imageHtml}
+                        <button class="custom-img-btn" onclick="setCustomImage(${index})" title="Set custom image URL">🖼️</button>
+                        <button class="refresh-btn" onclick="refreshImage(${index})" title="Get different image">🔄</button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        async function refreshImage(index) {
+            const card = cardsData[index];
+            if (!card) return;
+            
+            showStatus(`Fetching new image for "${card.word}"...`, 'info');
+            
+            const newImageUrl = await fetchImageWithVariety(card.word, card.topic);
+            card.imageUrl = newImageUrl;
+            
+            renderCards();
+            
+            showStatus(`✅ Updated image for "${card.word}"`, 'success');
+            setTimeout(() => {
+                document.getElementById('status').style.display = 'none';
+            }, 2000);
+        }
+        
+        function setCustomImage(index) {
+            const card = cardsData[index];
+            if (!card) return;
+            
+            const imageUrl = prompt(`Enter image URL for "${card.word}":\n\n(Paste a direct link to an image)`);
+            
+            if (imageUrl && imageUrl.trim()) {
+                card.imageUrl = imageUrl.trim();
+                renderCards();
+                showStatus(`✅ Custom image set for "${card.word}"`, 'success');
+                setTimeout(() => {
+                    document.getElementById('status').style.display = 'none';
+                }, 2000);
+            }
+        }
+        
+        function editTranslation(index) {
+            const card = cardsData[index];
+            if (!card) return;
+            
+            const spanish = prompt(`Edit Spanish translation for "${card.word}":\n\nCurrent: ${card.spanish}`, card.spanish);
+            
+            if (spanish !== null && spanish.trim()) {
+                card.spanish = spanish.trim();
+            }
+            
+            const chinese = prompt(`Edit Chinese translation for "${card.word}":\n\nCurrent: ${card.chinese}`, card.chinese);
+            
+            if (chinese !== null && chinese.trim()) {
+                card.chinese = chinese.trim();
+            }
+            
+            renderCards();
+            showStatus(`✅ Translations updated for "${card.word}"`, 'success');
+            setTimeout(() => {
+                document.getElementById('status').style.display = 'none';
+            }, 2000);
+        }
+        
+        // Show welcome message
+        window.addEventListener('load', () => {
+            showStatus('👋 Welcome! Enter your words and click Generate Cards to get started.', 'info');
+        });
+    </script>
+</body>
+</html>
