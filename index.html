@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Generate printable word wall cards with English, Spanish, and Chinese translations, plus educational images from Wikimedia Commons.">
+    <meta name="description" content="Generate printable word wall cards with English and two customizable language translations. Choose from Spanish, Chinese (Simplified/Traditional), Vietnamese, Arabic, French, Hindi, Japanese, Korean, Samoan, or Ukrainian. Defaults to Spanish and Chinese Simplified. Includes educational images from Wikimedia Commons.">
     <meta name="keywords" content="word wall, vocabulary cards, bilingual, education, printable, classroom">
     <meta name="author" content="Eldon Chou">
     <title>Word Wall Generator - Free Educational Vocabulary Cards</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&family=Noto+Sans+Arabic:wght@400;700&family=Noto+Sans+JP:wght@400;700&family=Noto+Sans+KR:wght@400;700&family=Noto+Sans+Thai:wght@400;700&family=Noto+Sans+Devanagari:wght@400;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -126,6 +126,21 @@
             border: 2px solid #ddd;
             border-radius: 5px;
             cursor: pointer;
+        }
+
+        .form-group select.lang-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .form-group select.lang-select:focus {
+            outline: none;
+            border-color: #4CAF50;
         }
         
         .button-group {
@@ -411,7 +426,34 @@
             text-align: left;
             line-height: 1.4;
             max-width: 100%;
-            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Noto Sans SC', 'Noto Sans Arabic', 'Noto Sans JP', 'Noto Sans KR', 'Noto Sans Thai', 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        /* RTL support for Arabic */
+        .card-translations:lang(ar) {
+            direction: rtl;
+            text-align: right;
+        }
+
+        /* Font support for different languages */
+        .translation-line:lang(ar) {
+            font-family: 'Noto Sans Arabic', sans-serif;
+        }
+        .translation-line:lang(ja) {
+            font-family: 'Noto Sans JP', sans-serif;
+        }
+        .translation-line:lang(ko) {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        .translation-line:lang(vi) {
+            font-family: 'Noto Sans', sans-serif;
+        }
+        .translation-line:lang(hi) {
+            font-family: 'Noto Sans Devanagari', sans-serif;
+        }
+        .translation-line:lang(zh-TW),
+        .translation-line:lang(zh-CN) {
+            font-family: 'Noto Sans SC', sans-serif;
         }
         
         .translation-line {
@@ -464,7 +506,7 @@
                 <div class="features">
                     <ul>
                         <li><strong>English word</strong> in large, readable text</li>
-                        <li><strong>Spanish and Chinese translations</strong> automatically generated</li>
+                        <li><strong>Two customizable translations</strong> - choose from Spanish, Chinese (Simplified/Traditional), Vietnamese, Arabic, French, Hindi, Japanese, Korean, Samoan, or Ukrainian (defaults: Spanish and Chinese Simplified)</li>
                         <li><strong>Educational images</strong> from Wikimedia Commons</li>
                         <li><strong>Customizable topic labels</strong> and colors</li>
                         <li><strong>Print-ready format</strong> - two cards per landscape page</li>
@@ -495,6 +537,39 @@
             <div class="form-group">
                 <label>Border Color:</label>
                 <input type="color" id="bgColor" value="#4A90E2">
+            </div>
+            
+            <div class="form-group">
+                <label>Translation Language 1:</label>
+                <select id="lang1" class="lang-select">
+                    <option value="es" selected>Spanish (Español)</option>
+                    <option value="vi">Vietnamese (Tiếng Việt)</option>
+                    <option value="ar">Arabic (العربية)</option>
+                    <option value="zh-TW">Chinese Traditional (繁體中文)</option>
+                    <option value="fr">French (Français)</option>
+                    <option value="hi">Hindi (हिन्दी)</option>
+                    <option value="ja">Japanese (日本語)</option>
+                    <option value="ko">Korean (한국어)</option>
+                    <option value="sm">Samoan (Gagana Sāmoa)</option>
+                    <option value="uk">Ukrainian (Українська)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Translation Language 2:</label>
+                <select id="lang2" class="lang-select">
+                    <option value="es">Spanish (Español)</option>
+                    <option value="vi">Vietnamese (Tiếng Việt)</option>
+                    <option value="ar">Arabic (العربية)</option>
+                    <option value="zh-CN" selected>Chinese Simplified (简体中文)</option>
+                    <option value="zh-TW">Chinese Traditional (繁體中文)</option>
+                    <option value="fr">French (Français)</option>
+                    <option value="hi">Hindi (हिन्दी)</option>
+                    <option value="ja">Japanese (日本語)</option>
+                    <option value="ko">Korean (한국어)</option>
+                    <option value="sm">Samoan (Gagana Sāmoa)</option>
+                    <option value="uk">Ukrainian (Українська)</option>
+                </select>
             </div>
             
             <div class="form-group">
@@ -681,44 +756,65 @@ Erosion</textarea>
             status.style.display = 'block';
         }
         
+        // Language code to display name mapping
+        const langNames = {
+            'es': 'Spanish',
+            'vi': 'Vietnamese',
+            'ar': 'Arabic',
+            'zh-CN': 'Chinese (Simplified)',
+            'zh-TW': 'Chinese (Traditional)',
+            'fr': 'French',
+            'hi': 'Hindi',
+            'ja': 'Japanese',
+            'ko': 'Korean',
+            'sm': 'Samoan',
+            'uk': 'Ukrainian'
+        };
+
         async function generateCards() {
             const topic = document.getElementById('topicTitle').value;
             const bgColor = document.getElementById('bgColor').value;
+            const lang1 = document.getElementById('lang1').value;
+            const lang2 = document.getElementById('lang2').value;
             const wordList = document.getElementById('wordList').value
                 .split('\n')
                 .map(w => w.trim())
                 .filter(w => w);
-            
+
             if (!topic || wordList.length === 0) {
                 showStatus('Please enter a topic and at least one word!', 'error');
                 return;
             }
-            
+
             showStatus(`Generating ${wordList.length} cards... This may take a minute.`, 'info');
-            
+
             cardsData = [];
-            
+
             for (let i = 0; i < wordList.length; i++) {
                 const word = wordList[i];
                 showStatus(`Processing ${i + 1}/${wordList.length}: ${word}`, 'info');
-                
-                const spanish = await translateText(word, 'es', topic);
+
+                const trans1 = await translateText(word, lang1, topic);
                 await delay(300);
-                const chinese = await translateText(word, 'zh-CN', topic);
+                const trans2 = await translateText(word, lang2, topic);
                 await delay(300);
-                
+
                 const imageUrl = await fetchImage(word, topic);
-                
+
                 cardsData.push({
                     word,
-                    spanish,
-                    chinese,
+                    trans1,
+                    trans2,
+                    lang1,
+                    lang2,
+                    lang1Name: langNames[lang1],
+                    lang2Name: langNames[lang2],
                     imageUrl,
                     topic,
                     bgColor
                 });
             }
-            
+
             renderCards();
             showStatus(`✅ Generated ${cardsData.length} cards successfully!`, 'success');
         }
@@ -781,12 +877,12 @@ Erosion</textarea>
         }
         
         function renderCard(card, index) {
-            const imageHtml = card.imageUrl 
+            const imageHtml = card.imageUrl
                 ? `<img src="${card.imageUrl}" class="card-image" alt="${card.word}" crossorigin="anonymous">`
                 : '';
-            
-            const translations = `<span class="translation-line">${card.spanish}</span><br><span class="translation-line">${card.chinese}</span>`;
-            
+
+            const translations = `<span class="translation-line" lang="${card.lang1}">${card.trans1}</span><br><span class="translation-line" lang="${card.lang2}">${card.trans2}</span>`;
+
             return `
                 <div class="card" style="border-color: ${card.bgColor};" data-card-index="${index}">
                     <div class="card-title" style="background-color: ${card.bgColor}; border-radius: 3px;">${card.topic}</div>
@@ -840,19 +936,19 @@ Erosion</textarea>
         function editTranslation(index) {
             const card = cardsData[index];
             if (!card) return;
-            
-            const spanish = prompt(`Edit Spanish translation for "${card.word}":\n\nCurrent: ${card.spanish}`, card.spanish);
-            
-            if (spanish !== null && spanish.trim()) {
-                card.spanish = spanish.trim();
+
+            const trans1 = prompt(`Edit ${card.lang1Name} translation for "${card.word}":\n\nCurrent: ${card.trans1}`, card.trans1);
+
+            if (trans1 !== null && trans1.trim()) {
+                card.trans1 = trans1.trim();
             }
-            
-            const chinese = prompt(`Edit Chinese translation for "${card.word}":\n\nCurrent: ${card.chinese}`, card.chinese);
-            
-            if (chinese !== null && chinese.trim()) {
-                card.chinese = chinese.trim();
+
+            const trans2 = prompt(`Edit ${card.lang2Name} translation for "${card.word}":\n\nCurrent: ${card.trans2}`, card.trans2);
+
+            if (trans2 !== null && trans2.trim()) {
+                card.trans2 = trans2.trim();
             }
-            
+
             renderCards();
             showStatus(`✅ Translations updated for "${card.word}"`, 'success');
             setTimeout(() => {
