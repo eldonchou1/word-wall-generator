@@ -396,25 +396,26 @@
         }
         
         .card-word {
-            font-size: 56px;
+            font-size: clamp(48px, 8vw, 84px);
             font-weight: bold;
             color: #333;
             margin-bottom: 20px;
             text-align: left;
-            line-height: 1.2;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
+            line-height: 1.1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
             max-width: 100%;
         }
         
         .card-translations {
-            font-size: 28px;
+            font-size: clamp(28px, 4vw, 48px);
             color: #666;
             text-align: left;
-            line-height: 1.6;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            hyphens: auto;
+            line-height: 1.4;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
             max-width: 100%;
             font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
